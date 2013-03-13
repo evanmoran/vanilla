@@ -1,4 +1,4 @@
 vanilla
 =======
 
-Code starting points for every language and environment
+Starting points for every language and environment
