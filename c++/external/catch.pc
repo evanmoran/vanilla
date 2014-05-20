@@ -1,0 +1,9 @@
+prefix=./external/catch
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: catch
+Description: The Catch unit testing library
+Version: 1.0.47
+Cflags: -I${includedir}
