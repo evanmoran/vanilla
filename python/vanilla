@@ -1,0 +1,229 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+import os
+import subprocess
+import glob
+import webbrowser
+import re
+from pprint import pprint
+
+# Constants
+# =========================================================
+
+VERSION = "v0.0.1\n"
+
+SHORT_USAGE = """
+  vanilla [options] argument [files ...]
+
+    options                         Optional arguments
+
+        -h, --help                  Extended help
+        -v, --verbose               Verbose flag
+        -n, --number <arg>          Number argument
+        -s, --string <arg>          String argument
+
+    argument                        Required argument
+
+    files                           Input as list of files or stream
+
+
+"""
+
+LONG_USAGE = """
+  vanilla [options] argument [files ...]
+
+    options                         Optional arguments
+
+        -h, --help                  Extended help
+        -v, --verbose               Verbose flag
+        -n, --number <arg>          Number argument
+        -s, --string <arg>          String argument
+
+    argument                        Required argument
+
+    files                           Input as list of files or stream
+
+  Examples:
+
+    vanilla                         Run vanilla with short usage
+    vanilla -h                      Run vanilla with long usage
+    vanilla arg file.txt            Run vanilla on file.txt
+    vanilla -v arg file.txt         Run vanilla with verbose mode
+    echo 'input' | vanilla arg      Run vanilla with stream input
+
+"""
+
+# Enumerations
+# =========================================================
+
+def enum(*sequential, **named):
+    enums = dict(zip(sequential, range(len(sequential))), **named)
+    reverse = dict((value, key) for key, value in enums.iteritems())
+    enums['reverse_mapping'] = reverse
+    return type('Enum', (), enums)
+
+Exit = enum(SUCCESS=0, ERROR=1, ARGUMENT_ERROR=2)
+
+# ColorMode
+ColorMode = enum(AUTO=1, ON=2, OFF=2)
+
+# Helpers
+# =========================================================
+
+class working_dir:
+  def __init__(self, directory):
+    self.scoped_dir = directory
+  def __enter__(self):
+    self.old_dir = os.getcwd()
+    os.chdir(self.scoped_dir)
+  def __exit__(self, type, value, traceback):
+    os.chdir(self.old_dir)
+
+# call: execute command as subprocess with list of arguments
+# returns triplet: code, out, err
+def call(args):
+  proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  out, err = proc.communicate()
+  code = proc.returncode
+  if code != Exit.SUCCESS:
+    raise BaseException(err)
+  return code, out, err
+
+# Execute git command
+def git(directory, args):
+  with working_dir(directory):
+    return call(['git'] + args)
+
+class Task:
+  def __init__(self, task_name, quiet=True):
+    self.task_name = task_name
+    self.quiet = quiet
+  def __enter__(self):
+    if not self.quiet:
+      sys.stdout.write(self.task_name + '... ')
+      sys.stdout.flush()
+  def __exit__(self, type, value, traceback):
+    if not self.quiet:
+      if type == None:
+        print 'OK'
+      else:
+        print 'ERROR (%s)' % value
+
+# die
+# ---------------------------------------------------------
+# Print errors with special formatting and USAGE
+
+def die(message, error_code = Exit.ARGUMENT_ERROR):
+  sys.stderr.write('\n  ERROR: %s\n' % message)
+  sys.stdout.write(SHORT_USAGE)
+  exit(error_code)
+
+# print_color
+# ---------------------------------------------------------
+
+def print_color(text, colorName):
+  # Detect color mode
+  if color_mode == ColorMode.AUTO and sys.stdout.isatty():
+    color_mode = ColorMode.ON
+  if color_mode == ColorMode.ON:
+    text = color(text, colorName)
+  print(text)
+
+COLOR_CODES = {
+    'black':    '0;30',     'bright gray':  '0;37',
+    'blue':     '0;34',     'white':        '1;37',
+    'green':    '0;32',     'bright blue':  '1;34',
+    'cyan':     '0;36',     'bright green': '1;32',
+    'red':      '0;31',     'bright cyan':  '1;36',
+    'purple':   '0;35',     'bright red':   '1;31',
+    'yellow':   '0;33',     'bright purple':'1;35',
+    'dark gray':'1;30',     'bright yellow':'1;33',
+    'normal':   '0'
+}
+
+# color
+# ---------------------------------------------------------
+# Return a string wrapped in ANSI color
+
+def color(text, color):
+  return "\033["+COLOR_CODES[color]+"m"+text+"\033[0m"
+
+# Commands
+# =========================================================
+
+def command_version():
+  sys.stdout.write(VERSION)
+  return Exit.SUCCESS
+
+def command_usage():
+  sys.stdout.write(SHORT_USAGE)
+  return Exit.SUCCESS
+
+def command_help():
+  parser.print_help()
+  return Exit.SUCCESS
+
+def command_vanilla():
+  print('vanilla called')
+  return Exit.SUCCESS
+
+# Parse Arguments
+# =========================================================
+
+class ArgParser(argparse.ArgumentParser):
+  def error(self, message):
+    die(message, Exit.ARGUMENT_ERROR)
+
+  def print_help(self):
+    sys.stdout.write(LONG_USAGE)
+
+parser = ArgParser(add_help=False)
+group = parser.add_mutually_exclusive_group()
+
+# groups are mutually exclusive
+group.add_argument('-h', '--help', action='store_true', default=False)
+group.add_argument('-v', '--verbose', action='store', default=False)
+group.add_argument('--version', action='store_true', default=False)
+
+# parsers can overlap
+parser.add_argument('-n', '--number', action='store', default=42.1, type=float)
+parser.add_argument('-s', '--string', action='store', default="forty-two", type=str)
+parser.add_argument('-i', '--integer', action='store', default=42, type=int)
+parser.add_argument('--color', action='store_true', default=False)
+parser.add_argument('--nocolor', action='store_true', default=False)
+
+# Require argument
+parser.add_argument('argument', nargs=1, type=str)
+
+# Parse the arguments
+args = parser.parse_args()
+
+# Fix color to be ColorMode type
+args.color_mode = ColorMode.AUTO
+if args.color:
+  args.color_mode = ColorMode.ON
+elif args.nocolor:
+  args.color_mode = ColorMode.OFF
+
+pprint(args)
+
+# Call Commands
+# ----------------------------------------------------------
+
+# Version
+if args.version == True:
+  exit(command_version())
+
+# Help
+elif args.help:
+  exit(command_help())
+
+# No arguments
+elif args.argument == None:
+  exit(command_usage())
+
+# Otherwise
+else:
+  exit(command_vanilla(args=args, argument=argument, files=files))
