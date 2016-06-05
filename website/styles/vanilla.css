@@ -1,0 +1,16 @@
+h1 {
+	color: blue;
+}
+
+h1:hover {
+ 	color: orange;
+}
+
+
+.bold {
+ 	font-weight: bold;
+}
+
+#paragraph1 {
+ 	font-family: sans-serif;
+}
