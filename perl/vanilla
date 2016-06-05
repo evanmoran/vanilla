@@ -1,0 +1,156 @@
+#!/usr/bin/env perl
+#
+# vanilla v0.0.1
+# ====================================================================
+#
+# (c) 2013 Evan Moran
+# http://github.com/evanmoran/vanilla/perl
+
+# Vanilla:perl is freely distributable under the MIT license.
+# http://opensource.org/licenses/mit
+#
+
+use strict;
+use warnings;
+use Getopt::Long qw(GetOptions);
+use Data::Dumper qw(Dumper);
+
+my %options = getOptions();
+
+my $optionVerbose = 0;
+my $optionNumber = 3;
+my $optionString = "default";
+my $optionArgument;
+
+sub getOptions {
+  my %options = (
+    'version' => '0.0.1',
+  );
+
+  GetOptions(
+    'h|help'        => sub { printHelp(0); },
+    'n|number=i'    => \$optionNumber,
+    's|string=s'    => \$optionString,
+    'v|verbose'     => \$optionVerbose,
+    'q|quiet'       => sub { $optionVerbose = 0 },
+    'version'       => sub { print "$options{'version'}\n"; exit 0;},
+  ) || printError("Unknown arguments", 1);
+
+  # Require that one argument has been passed
+  printUsage(1) if ($#ARGV < 0);
+
+  # First argument is 'input'
+  $optionArgument = shift(@ARGV);
+
+  return %options;
+}
+
+print "verbose: $optionVerbose\n";
+print "number: $optionNumber\n";
+print "string: \"$optionString\"\n";
+print "argument: $optionArgument\n";
+
+# Get lines from files or STDIN
+my @lines = <>;
+my $lineNumber = 1;
+
+# Fail if file is empty or invalid
+if (not sizeof(@lines)) {
+  printError("File is empty or invalid");
+  printHelp();
+  exit;
+}
+
+# Replace arguments line by line and create commands
+my @commands = ();
+for my $line (@lines)
+{
+  chomp $line;
+  print "$lineNumber: $line\n";
+  $lineNumber++;
+}
+
+# Exit success
+exit 0;
+
+#   printUsage
+# --------------------------------------------------------------------
+#   Print commandline usage information
+
+sub printUsage
+{
+  print <<EOF;
+
+  vanilla [options] argument [files...]
+
+    options
+
+      -h, --help            Help on usage with examples
+      -n, --number          Number argument
+      -s, --string          String argument
+      -v, --verbose         Verbose on
+      -q, --quiet           Verbose off
+      --version             Current version
+
+    argument                Required argument
+
+    files                   List of files
+
+EOF
+
+  # Exit with argument if present
+  exit($_[0]) if ($#_ >= 0);
+}
+
+#   printHelp
+# --------------------------------------------------------------------
+#   Print complete help
+
+sub printHelp
+{
+  printUsage();
+
+  print <<EOF;
+  Vanilla Help
+
+    Explain how vanilla really works.
+
+        Use indention for additional clarity and emphasis
+
+EOF
+
+  # Exit with argument if present
+  exit($_[0]) if ($#_ >= 0);
+}
+
+#   printError
+# --------------------------------------------------------------------
+sub printError
+{
+  my $message = $_[0];
+  print "\nvanilla: $message\n";
+
+  # Exit with argument if present
+  exit($_[1]) if ($#_ >= 1);
+}
+
+#   sizeof
+# --------------------------------------------------------------------
+sub sizeof
+{
+  return scalar(@_);
+}
+
+#   trim
+# --------------------------------------------------------------------
+#   Get string
+
+sub trim
+{
+  my $str = shift;
+  if(defined($str)){
+    $str =~ s/^\s+//g;
+    $str =~ s/\s+$//g;
+  }
+  return $str;
+}
