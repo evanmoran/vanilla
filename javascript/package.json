@@ -1,0 +1,22 @@
+{
+  "name": "vanilla",
+  "version": "0.0.1",
+  "private": true,
+  "main": "vanilla.js",
+  "description": "Example javascript project",
+  "homepage": "evanmoran.com/vanilla",
+  "keywords": [
+  ],
+  "author": "Evan Moran <evan@evanmoran.com>",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "~1.0.3",
+    "underscore":"*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/evanmoran/vanilla.git"
+  }
+}
