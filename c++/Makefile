@@ -1,10 +1,10 @@
-# Vanilla C++ Makefile
+# Makefile
 # =============================================================================
 
 # Project configuration
 # -----------------------------------------------------------------------------
 
-TARGET=vanilla
+TARGET=executable
 
 SOURCES=main.cpp
 OBJECTS=$(subst .cpp,.o,$(SOURCES))
@@ -14,7 +14,12 @@ TEST_OBJECTS=$(subst .cpp,.o,$(TEST_SOURCES))
 
 # External libraries referenced with pkg-config
 # -----------------------------------------------------------------------------
-INCLUDES = tclap external/catch.pc
+EXTERNAL_TCLAP = tclap-1.2.1
+EXTERNAL_CATCH = catch-1.0.47
+
+# Includes
+# -----------------------------------------------------------------------------
+INCLUDES =  external/$(EXTERNAL_TCLAP)/file/usr/lib/pkgconfig/tclap.pc external/$(EXTERNAL_CATCH)/catch.pc
 
 # Compiler configuration
 # -----------------------------------------------------------------------------
@@ -28,7 +33,9 @@ LIBS     = $(shell pkg-config --libs $(INCLUDES))
 # Makefile rules
 # -----------------------------------------------------------------------------
 
-all: vanilla test
+all: executable test
+
+executable: build_executable
 
 build_test: $(TEST_OBJECTS)
 	$(CXX) $(CXXFLAGS) -Wall $(LDFLAGS) -o test $(TEST_OBJECTS) $(LDLIBS)
@@ -36,7 +43,7 @@ build_test: $(TEST_OBJECTS)
 test: build_test
 	./test
 
-build_vanilla: $(OBJECTS)
+build_executable: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -Wall $(LDFLAGS) -o $(TARGET) $(OBJECTS) $(LDLIBS)
 
 env:
