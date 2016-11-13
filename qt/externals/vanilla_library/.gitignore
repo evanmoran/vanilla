@@ -1,0 +1,5 @@
+.DS_Store
+build_unix
+build_mac
+build_vstudio
+build_xcode

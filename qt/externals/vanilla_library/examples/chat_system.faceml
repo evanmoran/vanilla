@@ -1,0 +1,241 @@
+#include "face.hpp"
+#include "catch.hpp"
+
+using namespace face;
+
+/*
+	// I open the Face Editor and it contains no identities, no systems other than the language
+
+	// I add an identity to help me communicate with other remote systems
+	let evanSystem = SecureSystem
+		identities =
+			Identity
+				userName : String = "root"
+				password : String = "changeme"
+				domainName : NONE | String = NONE
+				fullName : NONE | String = "Evan Moran"
+
+	let evanWorkIdentity = Identity
+		userName : String = "em"
+		password : PROMPT | String = "mypassword"
+		domainName : NONE | String = "mywork.com"
+		fullName = NONE | String = "Evan Moran"
+
+	// I create a system to hold my own identity
+
+
+	// How do I hide my password from future system users
+
+	// I login to my work system to see what's currently running
+	face.connect(evanWorkIdentity)
+
+	// Please login to this system
+
+		login("!", changeme) -> System
+
+	: Loginable
+		login
+	: Changeable
+
+let system = face.connect(ipAddress(192,48,384))
+
+Face.Identity
+	identityId: Id128
+	// All identities can see the language system
+
+
+Connection
+	bitrate
+
+Order = UInteger
+
+Findable
+	Item: Face
+	find(Match: Face) -> Listable { Item = Match }
+
+List
+	Item: Face
+	count: UInteger
+	readNext(): EMPTY | Item
+	Changeable!
+		deleteNext(): EMPTY | SUCCESS
+		readAndDeleteNext() -> EMPTY | Item
+
+Orderable
+
+	Item: Face
+
+	: Listable {Item = Orderable.Item}
+	count : UInteger
+	first : EMPTY | Item
+	last : EMPTY | Item
+	find(order: Order) -> MISSING | Item
+	findNearestBefore(order: Order) -> Item
+	findNearestAfter(order: Order) -> Item
+
+Hashable
+	Item: Face
+	Key: Face
+
+	keys: Listable {Item = This.Key}
+	values: Listable {Item = This.Item}
+
+	// Many more members here, but they are similar enough to
+	// Orderable (below) that I'm not writing them yet
+
+// This is where permisions really come into play
+
+Range
+SortedRange
+ForwardRange
+BackwardRange
+RandomRange
+
+SortedArray
+SortedList
+Ordered
+OrderedSet
+BinaryTree
+Map<K,V>
+	Hash
+List<V>
+	LinkedList
+OrderedSet
+	Heap | PriorityQueue
+	SkipList
+Set<V>
+Heap
+List
+
+
+
+
+
+User
+	status: String
+		get
+		set Owner!
+	username: String
+		get Public!
+		set !
+
+		fullName: String
+			get Friend!
+			set Nameable!
+
+	!
+		password: String & length > 10
+
+
+function (user: Nameable!User) {
+	user.
+}
+
+
+let noPermisionUser = User()
+	noPermisionUser.status
+
+let changableUser = Changable!User()
+	changableUser.fullName
+
+let loginableUser = !User()
+	loginableUser.password
+
+let fullUser = !User
+
+
+Container is
+	Item: Face
+
+	: Map {Item = This.Item, Key = Order}
+	: Listable { Item = This.Item }
+
+	count: Order
+	read(at: Order <= count) -> Item
+	find(item: Item) -> MISSING | Order <= count
+
+	Updateable!
+		update(order: Order <= count, value: Item) -> SUCCESS | MISSING
+
+			Add!
+			createOrUpdate(face:Face, at: Order <= count) ->  FULL | Item
+
+			addOrUpdate(value:Item, at: Order <= count) -> FULL | SUCCESS
+
+		Createable!
+		create(face:Face, at: Order <= count) -> FULL | Item
+		add(value: Item, at: Order <= count) -> FULL | SUCCESS
+
+	Reorderable!
+
+		move(from: Order <= count, to: Order <= count) -> SUCCESS
+
+		delete(at: Order <= count) -> SUCCESS
+
+		// Extension method alias for add
+		append(Collection, value: Item) -> FULL | SUCCESS  =>
+			add(value, count)
+
+		// Extension method alias for add
+		prepend(value: Item) -> FULL | SUCCESS =>
+			add(value, Order.first)
+
+		// Extension method alias for find and delete
+		remove(atOrder: Order <= count) -> MISSING | Item =>
+			// This is my badass pattern maching function
+			// that utilizes the full power of face typing
+			match find(atOrder)
+				MISSING ->
+					MISSING
+				value: Item ->
+					delete(atOrder)
+					value
+
+
+User
+	publicName: Property { Item = String, get, ! set }
+	Changable!
+		lastLoginAt: Property { Item = DateTime, ! get, ! set }
+		name: Property { Item = String, ! get, ! set }
+		passwordSalt: Property { Item = DateTime, ! get, ! set }
+		passwordHash: Property { Item = DateTime, ! get, ! set }
+
+
+let obj = Listable<Read!Sanitized@String>
+
+
+ChatMessage
+	text: Property { Item = String, get }
+	user: Property { Item = User, get }
+
+ChatServer
+	!
+		users: Property { Item = [User], ! get, ! set, add}
+		messages: Collection { Item = !ChatMessage,
+			! get, ! set, ! add, ! remove ! move
+
+	Remote!
+		login(connection: ChatConnection) -> Remote!LoginSession
+		logout(sesson: UserSession) -> SUCCESS | ERROR!
+		userCreate() -> Remote!User
+		userDelete() -> Remote!User
+		userPasswordRequestReset(email: Email) -> SUCCESS | ERROR
+		userPasswordChange(oldPassword: Password, newPassword: Password)
+		userPasswordReset(resetToken: UserResetToken, newPassword)
+
+	addMessage!Client(message: ChatMessage) -> SUCCESS | ERROR
+
+ChatClient
+	server: Property { Item = ChatServer!Client, get, ! set }
+
+LoginSession
+	sessionId: Property { Item = Id64, get, ! set }
+	expiresAt: Property { Item = DateTime, get, ! set }
+
+*/
+
+TEST_CASE("chat system")
+{
+
+	REQUIRE(true);
+ }

@@ -1,0 +1,5 @@
+if (TARGET catch)
+	message("Skipping catch. Already included.")
+else()
+	add_subdirectory("catch")
+endif()
