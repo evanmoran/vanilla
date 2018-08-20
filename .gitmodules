@@ -1,3 +1,6 @@
 [submodule "c++/external/catch"]
 	path = c++/external/catch
 	url = git@github.com:philsquared/Catch.git
+[submodule "cpp_cmake/externals/Catch2"]
+	path = cpp_cmake/externals/Catch2
+	url = git@github.com:catchorg/Catch2.git
