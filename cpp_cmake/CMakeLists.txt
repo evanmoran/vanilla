@@ -28,7 +28,7 @@ target_include_directories(Catch2Library INTERFACE ${MASON_CATCH_SINGLE_INCLUDE}
 enable_testing()
 include(CTest)
 
-# add_subdirectory(vanilla_lib)
-# add_subdirectory(vanilla_app)
-# add_subdirectory(vanilla_qt)
+add_subdirectory(vanilla_lib)
+add_subdirectory(vanilla_app)
+add_subdirectory(vanilla_qt)
 add_subdirectory(vanilla_qt_py)
